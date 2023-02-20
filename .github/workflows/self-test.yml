@@ -1,0 +1,14 @@
+name: Test the Action
+on:
+  workflow_dispatch
+  
+jobs:
+  test-action:
+    name: Test the Action
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+           fetch-depth: 0
+      - name: Run the Action
+        uses: ./
