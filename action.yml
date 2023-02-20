@@ -1,0 +1,7 @@
+name: "Name of the Action"
+description: "Description of the Action"
+author: "mail@fabriziocacicia.com"
+
+runs:
+  using: "can be composite/docker/..."
+  ...
