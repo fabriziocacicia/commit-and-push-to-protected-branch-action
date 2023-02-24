@@ -2,6 +2,43 @@ name: "Commit and Push to Protected Branch"
 description: "A Github Action that is able to push the pending changes of a codebase on a branch protected by pull request."
 author: "mail@fabriziocacicia.com"
 
+inputs:
+  git_user_name:
+    description: 'The name of the git user of the commit (default: Commit and Push to Protected Branch Action)'
+    required: false
+    default: 'Commit and Push to Protected Branch Action'
+  git_user_email:
+    description: 'The email of the git user of the commit (default: <>)'
+    required: false
+    default: '<>'
+  temp_branch:
+    description: 'The name of the temporary branch (default: temp_(github.run_id)-(github.run_attempt)'
+    required: false
+    default: 'temp_${{ github.run_id }}-${{ github.run_attempt }}'
+  commit_message:
+    description: 'The message of the commit that will hold the changes'
+    required: true
+
 runs:
-  using: "can be composite/docker/..."
-  ...
+  using: "composite"
+  steps:
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+    - name: Config git user
+      shell: bash
+      run: |
+        git config user.name "${{ inputs.git_user_name }}"
+        git config user.email "${{ inputs.git_user_email }}"
+    - name: Commit and push the changes to a temporary branch
+      shell: bash
+      run: |
+        git checkout -b ${{ inputs.temp_branch }}
+        git add --all
+        git commit -m "${{ inputs.commit_message }}"
+        git push -u origin ${{ inputs.temp_branch }}
+    - name: Push changes to the branch that triggered the workflow (even if its protected)
+      shell: bash
+      run: |
+        gh pr create --base ${{ github.ref_name }} --head ${{ inputs.temp_branch }} --title "${{ inputs.commit_message }}" --body "This Pull Request has been created by the **Push to Pull Request protected branch** Github Action"
+        gh pr merge --auto --delete-branch --squash
