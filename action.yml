@@ -1,5 +1,5 @@
-name: "Name of the Action"
-description: "Description of the Action"
+name: "Commit and Push to Protected Branch"
+description: "A Github Action that is able to push the pending changes of a codebase on a branch protected by pull request."
 author: "mail@fabriziocacicia.com"
 
 runs:
