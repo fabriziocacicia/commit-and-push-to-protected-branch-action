@@ -17,5 +17,5 @@ Add the following step to your workflow
 | --- | --- | --- | --- |
 | git_user_name | The name of the git user of the commit |Commit and Push to Protected Branch Action | false |
 | git_user_email | The email of the git user of the commit | <> | false |
-| temp_branch | The name of the temporary branch | temp | false |
+| temp_branch | The name of the temporary branch | temp_${{ github.run_id }}-${{ github.run_attempt } | false |
 | commit_message | The message of the commit that will hold the changes |  | true |
