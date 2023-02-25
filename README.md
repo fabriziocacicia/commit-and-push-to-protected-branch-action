@@ -17,5 +17,5 @@ Add the following step to your workflow
 | --- | --- | --- | --- |
 | git_user_name | The name of the git user of the commit |Commit and Push to Protected Branch Action | false |
 | git_user_email | The email of the git user of the commit | <> | false |
-| temp_branch | The name of the temporary branch | temp_${{ github.run_id }}-${{ github.run_attempt } | false |
+| temp_branch_prefix | The prefix of the temporary branch. The complete name will be prefix_runid-runattempt: i.e. branchprefix_4269555185-1 | temp | false |
 | commit_message | The message of the commit that will hold the changes |  | true |
