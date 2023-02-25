@@ -11,10 +11,10 @@ inputs:
     description: 'The email of the git user of the commit (default: <>)'
     required: false
     default: '<>'
-  temp_branch:
-    description: 'The name of the temporary branch (default: temp_(github.run_id)-(github.run_attempt)'
+  temp_branch_prefix:
+    description: 'The prefix of the temporary branch. The complete name will be prefix_runid-runattempt: i.e. branchprefix_4269555185-1 (default: temp)'
     required: false
-    default: 'temp_${{ github.run_id }}-${{ github.run_attempt }}'
+    default: 'temp'
   commit_message:
     description: 'The message of the commit that will hold the changes'
     required: true
@@ -27,15 +27,22 @@ runs:
       run: |
         git config user.name "${{ inputs.git_user_name }}"
         git config user.email "${{ inputs.git_user_email }}"
+    - name: Build temporary branch name
+      id: temp_branch
+      shell: bash
+      run: |
+        TEMP_BRANCH_PREFIX="${{ inputs.temp_branch_prefix }}_${{ github.run_id }}-${{ github.run_attempt }}"
+        echo "::set-output name=value::$base_branch"
+        echo "value=$TEMP_BRANCH_PREFIX" >> $GITHUB_OUTPUT
     - name: Commit and push the changes to a temporary branch
       shell: bash
       run: |
-        git checkout -b ${{ inputs.temp_branch }}
+        git checkout -b ${{ steps.temp_branch.outputs.value }}
         git add --all
         git commit -m "${{ inputs.commit_message }}"
-        git push -u origin ${{ inputs.temp_branch }}
+        git push -u origin ${{ steps.temp_branch.outputs.value }}
     - name: Push changes to the branch that triggered the workflow (even if its protected)
       shell: bash
       run: |
-        gh pr create --base ${{ github.ref_name }} --head ${{ inputs.temp_branch }} --title "${{ inputs.commit_message }}" --body "This Pull Request has been created by the **Push to Pull Request protected branch** Github Action"
+        gh pr create --base ${{ github.ref_name }} --head ${{ steps.temp_branch.outputs.value }} --title "${{ inputs.commit_message }}" --body "This Pull Request has been created by the **Push to Pull Request protected branch** Github Action"
         gh pr merge --auto --delete-branch --squash
